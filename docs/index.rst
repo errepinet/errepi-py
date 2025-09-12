@@ -1,4 +1,4 @@
-Errepi Net's services python bindings
+Errepi Net's services python bindings | |release|
 ====================
 
 .. toctree::

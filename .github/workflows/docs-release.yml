@@ -1,0 +1,44 @@
+name: Build & Publish Docs per Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Attiva solo sui tag di versione
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+           token: ${{ secrets.DEPLOY_PASSWORD }}
+           submodules: 'true'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install sphinx sphinx_rtd_theme
+          pip install -r requirements.txt || true
+
+      - name: Build Sphinx docs
+        run: |
+          cd errepi-py
+          python -m sphinx -b html docs build/html
+
+      - name: Extract version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: errepi-py/build/html
+          destination_dir: ${{ env.VERSION }}
+          keep_files: true
