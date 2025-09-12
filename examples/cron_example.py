@@ -4,16 +4,20 @@ Examples of using the CronConfigurator class to interact with the Errepi Net Cro
 
 from errepi.cron import (
     CronConfigurator,
-    ConfigurationEntrySet,
-    HTTPJob,
-    JobBodyType,
-    JobCreateUpdate,
+    http_job_type,
+)
+
+from errepi.cron.models import (
     JobFrequencyMinute,
     JobHttpMethod,
     JobFrequency,
+    JobBodyType,
+    JobCreateUpdate,
+    ConfigurationEntrySet,
+    HTTPJob,
     RefCreateUpdate,
-    http_job_type,
 )
+
 import json
 from datetime import datetime, timedelta, timezone
 
