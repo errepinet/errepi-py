@@ -13,7 +13,7 @@ from __future__ import annotations
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional, Union
-from pydantic import BaseModel, conint
+from pydantic import BaseModel, conint, RootModel
 import requests
 
 
@@ -83,7 +83,7 @@ class CornettiError(BaseModel):
     status: conint(ge=0)  # type: ignore
 
 
-class JobBodyType(Enum):
+class JobBodyType(str, Enum):
     """
     Type of HTTP job body (Json or Text).
     """
@@ -164,15 +164,15 @@ class JobFrequencyMinute(BaseModel):
     Minute: conint(ge=0)  # type: ignore
 
 
-class JobFrequency(BaseModel):
+class JobFrequency(RootModel):
     """
     Job execution frequency (hourly, daily, weekly, monthly, or by minute).
 
     Attributes:
-        __root__: One of the frequency types (hour, day, week, month, minute).
+        root: One of the frequency types (hour, day, week, month, minute).
     """
 
-    __root__: Union[
+    root: Union[
         JobFrequencyHour,
         JobFrequencyDay,
         JobFrequencyWeek,
@@ -181,7 +181,7 @@ class JobFrequency(BaseModel):
     ]
 
 
-class JobHttpMethod(Enum):
+class JobHttpMethod(str, Enum):
     """
     Supported HTTP methods for jobs.
     """
@@ -193,7 +193,7 @@ class JobHttpMethod(Enum):
     DELETE = "DELETE"
 
 
-class JobStatus(Enum):
+class JobStatus(str, Enum):
     """
     Job status values.
     """
@@ -246,7 +246,7 @@ class HTTPJob(BaseModel):
 
     body: Optional[str] = None
     body_type: Optional[JobBodyType] = None
-    headers: Optional[Dict[str, Any]] = None
+    headers: Optional[Dict[str, str]] = None
     method: JobHttpMethod
     timeout_seconds: Optional[conint(ge=0)] = None  # type: ignore
     url: str
@@ -265,15 +265,15 @@ class JobTypeHttp(BaseModel):
     Http: HTTPJob
 
 
-class JobType(BaseModel):
+class JobType(RootModel):
     """
     Generic job type, currently only HTTP is supported.
 
     Attributes:
-        __root__: The job type (JobTypeHttp).
+        root: The job type (JobTypeHttp).
     """
 
-    __root__: JobTypeHttp
+    root: JobTypeHttp
 
 
 class Job(BaseModel):
@@ -301,7 +301,7 @@ class Job(BaseModel):
     description: Optional[str] = None
     enabled: bool
     frequency: Optional[JobFrequency] = None
-    id: Optional[str] = None
+    id: str
     job_status: JobStatus
     job_type: JobType
     last_execution_dt: Optional[datetime] = None
@@ -328,6 +328,19 @@ class JobCreateUpdate(BaseModel):
     job_type: JobType
     next_execution_dt: datetime
     use_configuration: Optional[str] = None
+
+
+def http_job_type(http_job: HTTPJob) -> JobType:
+    """
+    Create a JobType instance encapsulating the given HTTPJob.
+
+    Args:
+        http_job (HTTPJob): The HTTP job definition.
+
+    Returns:
+        JobType: The JobType instance containing the HTTP job.
+    """
+    return JobType(JobTypeHttp(Http=http_job))
 
 
 class CronConfigurator:
@@ -384,11 +397,11 @@ class CronConfigurator:
         Returns:
             AppInfo: Application information object.
         """
-        response = requests.get(f"{self.URL}/info")
+        response = requests.get(f"{self.URL}/")
         response.raise_for_status()
         return AppInfo(**response.json())
 
-    def get_configuration(self, namespace, name) -> ConfigurationEntry:
+    def get_configuration(self, namespace: str, name: str) -> ConfigurationEntry:
         """
         Get a job configuration entry by namespace and name.
 
@@ -404,7 +417,7 @@ class CronConfigurator:
         return ConfigurationEntry(**response.json())
 
     def set_configuration(
-        self, namespace, name, config: ConfigurationEntrySet
+        self, namespace: str, name: str, config: ConfigurationEntrySet
     ) -> ConfigurationEntry:
         """
         Set or update a job configuration entry.
@@ -419,12 +432,12 @@ class CronConfigurator:
         """
         response = requests.post(
             f"{self.URL}/configurations/{namespace}/{name}",
-            json=config.model_dump(),
+            json=config.model_dump(mode="json"),
         )
         response.raise_for_status()
         return ConfigurationEntry(**response.json())
 
-    def unset_configuration(self, namespace, name) -> None:
+    def unset_configuration(self, namespace: str, name: str) -> None:
         """
         Remove a job configuration entry by namespace and name.
 
@@ -436,7 +449,7 @@ class CronConfigurator:
         response.raise_for_status()
         return None
 
-    def list_jobs(self, namespace) -> List[Job]:
+    def list_jobs(self, namespace: str) -> List[Job]:
         """
         List all jobs in a given namespace.
 
@@ -447,11 +460,12 @@ class CronConfigurator:
             List[Job]: List of job objects.
         """
         response = requests.get(f"{self.URL}/jobs/{namespace}")
+
         response.raise_for_status()
         jobs = response.json()
         return [Job(**job) for job in jobs]
 
-    def create_job(self, namespace, job: JobCreateUpdate) -> Job:
+    def create_job(self, namespace: str, job: JobCreateUpdate) -> Job:
         """
         Create a new scheduled job in the given namespace.
 
@@ -464,12 +478,12 @@ class CronConfigurator:
         """
         response = requests.post(
             f"{self.URL}/jobs/{namespace}",
-            json=job.model_dump(),
+            json=job.model_dump(mode="json"),
         )
         response.raise_for_status()
         return Job(**response.json())
 
-    def update_job(self, namespace, job_id: str, job: JobCreateUpdate) -> Job:
+    def update_job(self, namespace: str, job_id: str, job: JobCreateUpdate) -> Job:
         """
         Update an existing job by ID in the given namespace.
 
@@ -483,12 +497,13 @@ class CronConfigurator:
         """
         response = requests.put(
             f"{self.URL}/jobs/{namespace}/{job_id}",
-            json=job.model_dump(),
+            json=job.model_dump(mode="json"),
         )
+
         response.raise_for_status()
         return Job(**response.json())
 
-    def delete_job(self, namespace, job_id: str) -> None:
+    def delete_job(self, namespace: str, job_id: str) -> None:
         """
         Delete a job by ID in the given namespace.
 
@@ -510,7 +525,7 @@ class CronConfigurator:
         Returns:
             Job: The job object.
         """
-        response = requests.get(f"{self.URL}/jobs/{job_id}")
+        response = requests.get(f"{self.URL}/jobs/single/{job_id}")
         response.raise_for_status()
         return Job(**response.json())
 
@@ -524,12 +539,12 @@ class CronConfigurator:
         Returns:
             List[JobExecutionResult]: List of job execution result objects.
         """
-        response = requests.get(f"{self.URL}/jobs/{job_id}/results")
+        response = requests.get(f"{self.URL}/jobs/single/{job_id}/results")
         response.raise_for_status()
         results = response.json()
         return [JobExecutionResult(**result) for result in results]
 
-    def get_ref(self, namespace, name) -> Ref:
+    def get_ref(self, namespace: str, name: str) -> Ref:
         """
         Retrieve a reference value by namespace and name.
 
@@ -544,7 +559,7 @@ class CronConfigurator:
         response.raise_for_status()
         return Ref(**response.json())
 
-    def set_ref(self, namespace, name, ref: RefCreateUpdate) -> Ref:
+    def set_ref(self, namespace: str, name: str, ref: RefCreateUpdate) -> Ref:
         """
         Set or update a reference value.
 
@@ -558,12 +573,12 @@ class CronConfigurator:
         """
         response = requests.post(
             f"{self.URL}/refs/{namespace}/{name}",
-            json=ref.model_dump(),
+            json=ref.model_dump(mode="json"),
         )
         response.raise_for_status()
         return Ref(**response.json())
 
-    def unset_ref(self, namespace, name) -> None:
+    def unset_ref(self, namespace: str, name: str) -> None:
         """
         Remove a reference value by namespace and name.
 
