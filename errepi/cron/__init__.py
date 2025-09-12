@@ -40,21 +40,7 @@ class CronConfigurator:
     This class provides methods to retrieve application info, manage job configurations,
     and create, update, list, or delete scheduled jobs via HTTP requests.
 
-    Methods:
-        - from_env(): Instantiate from environment variable or default URL.
-        - app_info(): Get application build and version info.
-        - get_configuration(): Retrieve a job configuration entry.
-        - set_configuration(): Set or update a job configuration.
-        - unset_configuration(): Remove a job configuration.
-        - list_jobs(): List all jobs in a namespace.
-        - create_job(): Create a new scheduled job.
-        - update_job(): Update an existing job.
-        - delete_job(): Delete a job by ID.
-        - single_job(): Retrieve a single job by ID.
-        - single_job_execution_results(): Get execution results for a job.
-        - get_ref(): Retrieve a reference value.
-        - set_ref(): Set or update a reference value.
-        - unset_ref(): Remove a reference value.
+    Use static from_env() to create an instance using the ERREPI_CRON_CONF_URL environment variable if available.
     """
 
     def __init__(self, URL) -> None:
@@ -63,6 +49,7 @@ class CronConfigurator:
 
         Args:
             URL (str): Base URL of the Cron microservice API.
+
         """
         self.URL = URL
 
