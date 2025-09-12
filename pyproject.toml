@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "errepi-py"
+version = "0.0.2"
+description = "Python bindings for Errepi Net microservices"
+authors = [
+    { name = "Valerio Faiuolo", email = "valerio.faiuolo@errepinet.it" }
+]
+requires-python = ">=3.10,<4"
+dependencies = [
+    "pydantic>=2.0.0,<3.0.0",
+    "requests>=2.0.0,<3.0.0"
+]
+keywords = ["errepinet", "microservices", "bindings"]
+homepage = "https://github.com/errepinet/errepi-py"
+
+[tool.setuptools.packages.find]
+where = ["errepi"]
+include = ["errepi*"]

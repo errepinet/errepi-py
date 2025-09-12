@@ -23,7 +23,7 @@ try:
 
     # Cerca la versione in vari file
     version_files = [
-        "../setup.py",
+        "../pyproject.toml",
     ]
 
     version = "unknown"
