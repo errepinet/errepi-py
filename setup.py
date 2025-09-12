@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name="errepi-py",
-    version="0.0.1",
+    version="0.0.2",
     description="Python bindings for Errepi Net microservices",
     packages=["errepi"],
     author="Valerio Faiuolo",
