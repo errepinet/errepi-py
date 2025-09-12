@@ -102,7 +102,7 @@ if [ -n "$UPDATE_VERSION_FILE" ] && [ "$DRY_RUN" = false ]; then
     
     if [ "$UPDATE_VERSION_FILE" = "setup.py" ]; then
         # Aggiorna setup.py
-        sed -i.bak "s/version=['\"][^'\"]*['\"]/version='$VERSION'/g" setup.py
+        sed -i.bak "s/version=['\"][^'\"]*['\"]/version=\"$VERSION\"/g" setup.py
         rm setup.py.bak
     elif [ "$UPDATE_VERSION_FILE" = "pyproject.toml" ]; then
         # Aggiorna pyproject.toml
