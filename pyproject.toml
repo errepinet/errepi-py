@@ -17,5 +17,5 @@ dependencies = [
 keywords = ["errepinet", "microservices", "bindings"]
 
 [tool.setuptools.packages.find]
-where = ["errepi"]
+where = ["."]
 include = ["errepi*"]
