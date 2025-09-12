@@ -15,7 +15,6 @@ dependencies = [
     "requests>=2.0.0,<3.0.0"
 ]
 keywords = ["errepinet", "microservices", "bindings"]
-homepage = "https://github.com/errepinet/errepi-py"
 
 [tool.setuptools.packages.find]
 where = ["errepi"]
