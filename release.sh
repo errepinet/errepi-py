@@ -42,7 +42,7 @@ DRY_RUN=false
 
 if [ "$2" = "--dry-run" ]; then
     DRY_RUN=true
-    log_warning "Modalità DRY RUN attivata - nessuna modifica sarà applicata"
+    log_warning "DRY RUN mode activated - no changes will be applied"
 fi
 
 # Validate version format (semantic versioning)
