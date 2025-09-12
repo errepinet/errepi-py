@@ -14,9 +14,6 @@ from .models import (
 
 
 import requests
-
-
-import os
 from typing import List
 
 
