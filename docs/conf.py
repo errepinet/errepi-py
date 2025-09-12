@@ -23,21 +23,15 @@ try:
 
     # Cerca la versione in vari file
     version_files = [
-        "./setup.py",
+        "../setup.py",
     ]
 
-    version = "0.0.1"
+    version = "unknown"
     for file_path in version_files:
         if os.path.exists(file_path):
             with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
-                match = re.search(r'version\s*=\s*[\'"]([^\'"]+)[\'"]', content)
-                if match:
-                    version = match.group(1)
-                    break
-
-                # Prova anche __version__
-                match = re.search(r'__version__\s*=\s*[\'"]([^\'"]+)[\'"]', content)
+                match = re.search(r'version\s*=\s*["\']([^"\']*)["\']', content)
                 if match:
                     version = match.group(1)
                     break
