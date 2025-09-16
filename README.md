@@ -5,17 +5,17 @@ Python bindings for Errepi Net microservices
 
 ```bash
 # Install latest version
-pip install git+ssh://git@github.com:errepinet/errepi-py.git
+pip install git+ssh://git@github.com/errepinet/errepi-py.git
 
 # Install specific version
-pip install git+ssh://git@github.com:errepinet/errepi-py.git@version
+pip install git+ssh://git@github.com/errepinet/errepi-py.git@version
 ```
 
 In requirements.txt add, for latest version:
-`git+ssh://git@github-SindacalistaErrepinet/errepinet/errepi-py.git`
+`git+ssh://git@github.com/errepinet/errepi-py.git`
 
 for specific version:
-`git+ssh://git@github-SindacalistaErrepinet/errepinet/errepi-py.git@version`
+`git+ssh://git@github.com/errepinet/errepi-py.git@version`
 
 
 ## Simple example
