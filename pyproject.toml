@@ -16,6 +16,13 @@ dependencies = [
 ]
 keywords = ["errepinet", "microservices", "bindings"]
 
+[dependency-groups]
+dev = [
+    "grpcio-tools>=1.60.0",
+    "sphinx>=7.0.0",
+    "sphinx-rtd-theme>=2.0.0"
+]
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["errepi*"]
