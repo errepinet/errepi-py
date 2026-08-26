@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "errepi-py"
-version = "0.1.0"
+version = "0.1.1"
 description = "Python bindings for Errepi Net microservices"
 authors = [
     { name = "Valerio Faiuolo", email = "valerio.faiuolo@errepinet.it" }
