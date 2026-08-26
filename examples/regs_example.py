@@ -10,7 +10,7 @@ from errepi.regs import GenericRegsClient
 from errepi.regs.confs import RegsClientConfiguration
 
 # Instantiate with a connection configuration (host and port) or use the default
-regs = GenericRegsClient(RegsClientConfiguration(host="localhost", port=50051))
+regs = GenericRegsClient(RegsClientConfiguration(host="localhost", port=50052))
 
 # 1. Get application info
 info = regs.app_info()

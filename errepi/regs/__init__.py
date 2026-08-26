@@ -22,7 +22,11 @@ from errepi.gen import generic_regs_pb2_grpc as pb_grpc
 
 def _parse_message(model, message):
     return model.model_validate(
-        MessageToDict(message, preserving_proto_field_name=True)
+        MessageToDict(
+            message,
+            preserving_proto_field_name=True,
+            always_print_fields_with_no_presence=True,
+        )
     )
 
 
