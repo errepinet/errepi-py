@@ -15,58 +15,35 @@ from enum import Enum
 from typing import Dict, List, Optional, Union
 from pydantic import BaseModel, conint, RootModel
 
+from errepi.models import AppInfo
 
-class AppInfo(BaseModel):
+
+class CronClientConfiguration(BaseModel):
     """
-    Application information, version, and build details.
+    Connection configuration for the cron client.
 
     Attributes:
-        build_date: Build date as a string.
-        build_datetime: Build date and time as a string.
-        build_time: Build time as a string.
-        build_timestamp: Build timestamp as a string.
-        git_branch: Git branch name.
-        git_hash: Git commit hash.
-        name: Application name.
-        version: Application version.
+        host: Host of the cron microservice.
+        port: Port of the cron microservice.
     """
 
-    build_date: str
-    build_datetime: str
-    build_time: str
-    build_timestamp: str
-    git_branch: str
-    git_hash: str
-    name: str
-    version: str
+    host: str = "localhost"
+    port: int = 50051
 
 
-class ConfigurationEntry(BaseModel):
+class CronConfiguration(BaseModel):
     """
-    Job configuration entry, including max retries and retry delay.
+    Job configuration, including max retries and retry delay.
 
     Attributes:
         job_max_retries: Maximum number of retries for a job.
         job_retry_delay_secs: Delay in seconds between retries.
-        set_at: Datetime when the configuration was set.
+        set_at: Datetime when the configuration was set (absent on set payloads).
     """
 
     job_max_retries: conint(ge=0)  # type: ignore
     job_retry_delay_secs: conint(ge=0)  # type: ignore
-    set_at: datetime
-
-
-class ConfigurationEntrySet(BaseModel):
-    """
-    Set of job configuration values (without timestamp).
-
-    Attributes:
-        job_max_retries: Maximum number of retries for a job.
-        job_retry_delay_secs: Delay in seconds between retries.
-    """
-
-    job_max_retries: conint(ge=0)  # type: ignore
-    job_retry_delay_secs: conint(ge=0)  # type: ignore
+    set_at: Optional[datetime] = None
 
 
 class CornettiError(BaseModel):
@@ -100,12 +77,14 @@ class JobExecutionResult(BaseModel):
         detail: Execution detail message.
         is_success: Whether the execution was successful.
         job_id: ID of the executed job.
+        namespace: Namespace of the executed job.
     """
 
     date_time: datetime
     detail: str
     is_success: bool
     job_id: str
+    namespace: str
 
 
 class JobFrequencyHour(BaseModel):
@@ -294,7 +273,7 @@ class Job(BaseModel):
         updated: Datetime of the last update.
     """
 
-    configuration: ConfigurationEntry
+    configuration: CronConfiguration
     created: datetime
     curr_retries: conint(ge=0)  # type: ignore
     description: Optional[str] = None

@@ -1,11 +1,11 @@
-cron
+regs
 ==============
 
-.. automodule:: errepi.cron
+.. automodule:: errepi.regs
    :undoc-members:
    :show-inheritance:
 
 .. toctree::
    :maxdepth: 1
 
-   cron_models
+   regs_models

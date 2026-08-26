@@ -6,3 +6,6 @@ Errepi Net's services python bindings | |release|
    :caption: Contents:
 
    cron
+   cron_models
+   regs
+   regs_models

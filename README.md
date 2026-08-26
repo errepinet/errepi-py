@@ -21,7 +21,8 @@ for specific version:
 ## Simple example
 ```python
 from errepi.cron import CronConfigurator
-cron = CronConfigurator.from_env()
+from errepi.cron.models import CronClientConfiguration
+cron = CronConfigurator(CronClientConfiguration(host="localhost", port=50051))
 info = cron.app_info()
 print("App info:", info)
 ```

@@ -2,16 +2,17 @@
 
 ## Project
 
-Pure-Python client bindings for Errepi Net microservices (REST, `requests`). No server code. Python >=3.10, deps: `pydantic>=2`, `requests>=2`.
+Pure-Python client bindings for Errepi Net microservices (gRPC, `grpcio`). No server code. Python >=3.10, deps: `pydantic>=2`, `grpcio>=1.60`.
 
-- Package `errepi/`; only subpackage today is `errepi.cron` (client `CronConfigurator` + pydantic v2 models).
+- Package `errepi/`; subpackages: `errepi.cron` (client `CronConfigurator` + pydantic v2 models) and `errepi.regs` (client `GenericRegsClient` + pydantic v2 models). Shared `AppInfo` model in `errepi/models.py` (defined in both service protos).
 - New microservice bindings = new subpackage under `errepi/`; packaging picks it up automatically (`MANIFEST.in` has `recursive-include errepi *`, `pyproject.toml` `include = ["errepi*"]`).
-- `protos/` is a git submodule (`errepinet-sys-services-protos`) with the gRPC `.proto` defs; the Python lib is REST-only, protos serve as API reference. Bump pointer with `git -C protos pull && git add protos && git commit`. `protoc` not needed here (only in the Rust apps).
+- `protos/` is a git submodule (`errepinet-sys-services-protos`) with the gRPC `.proto` defs. Generated Python stubs live in `errepi/gen/` (committed). Regenerate after a protos bump with `python gen_protos.py` (requires `grpcio-tools` in the venv) and commit the regenerated stubs. Bump pointer with `git -C protos pull && git add protos && git commit`.
+- Client interfaces mirror the RPCs of the proto services (same method names, snake_case; `tenant_id`/`namespace` params where the proto requests have them).
 - Sphinx docs in `docs/` (autodoc from Google-style docstrings, version read from `pyproject.toml`).
 
 ## Commands / environment
 
-- No test suite, no lint/typecheck config, no CI (`.github/` is empty; Actions workflow removed). Sanity-check by running `examples/cron_example.py` with `python examples/cron_example.py`.
+- No test suite, no lint/typecheck config, no CI (`.github/` is empty; Actions workflow removed). Sanity-check by running `python examples/cron_example.py` and `python examples/regs_example.py` (both need a live gRPC service; without one, at least verify imports with `.env/bin/python -c "import errepi.cron, errepi.regs"`).
 - Local venv lives in `.env/` (gitignored) — that is a Python venv, not a dotenv file: use `.env/bin/python`, `.env/bin/pip`.
 - `build/`, `errepi_py.egg-info/`, `__pycache__/` are stale gitignored artifacts; ignore them.
 
@@ -27,4 +28,4 @@ Pure-Python client bindings for Errepi Net microservices (REST, `requests`). No 
 - **Always use the caveman skill** (`.agents/skills/caveman`) for responses — repo-local skill; adjust with `/caveman lite|full|ultra`, stop with "stop caveman". Keep code, errors, symbols exact.
 - Pydantic v2 style: `model_dump(mode="json")`, `conint(ge=0)`, `RootModel`.
 - Commit messages in Italian (per recent history).
-- Client methods mirror REST paths of the cron bridge service; `CronConfigurator.from_env()` reads `ERREPI_CRON_CONF_URL` (default `http://localhost:8080`).
+- `CronConfigurator(config=CronClientConfiguration(host, port))` and `GenericRegsClient(config=RegsClientConfiguration(host, port))` take a client configuration (defaults `localhost:50051`). No env vars read by the library.
