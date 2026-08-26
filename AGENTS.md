@@ -31,3 +31,4 @@ Pure-Python client bindings for Errepi Net microservices (gRPC, `grpcio`). No se
 - Pydantic v2 style: `model_dump(mode="json")`, `conint(ge=0)`, `RootModel`.
 - Commit messages in Italian (per recent history).
 - `CronConfigurator(config=CronClientConfiguration(host, port))` and `GenericRegsClient(config=RegsClientConfiguration(host, port))` take a client configuration (defaults `localhost:50051`). No env vars read by the library.
+- Transient gRPC failures (`UNAVAILABLE`, `DEADLINE_EXCEEDED`) are retried with exponential backoff; `max_retries` and `retry_delay_secs` are configurable on the client configuration (defaults 3 retries, 1s base delay). Non-transient errors raise immediately.

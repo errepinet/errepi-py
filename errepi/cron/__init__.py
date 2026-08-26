@@ -17,6 +17,7 @@ from .models import (
 import grpc
 from typing import List, Optional
 
+from errepi._retry import call_with_retry
 from errepi.gen import cron_bridge_pb2 as pb
 from errepi.gen import cron_bridge_pb2_grpc as pb_grpc
 
@@ -62,6 +63,19 @@ class CronConfigurator:
         self._channel = grpc.insecure_channel(self.target)
         self._stub = pb_grpc.CronBridgeServiceStub(self._channel)
 
+    def _call(self, method: str, request) -> None:
+        """Invoke an RPC, retrying on transient gRPC failures."""
+        stub = self._stub
+
+        def invoke():
+            return getattr(stub, method)(request)
+
+        return call_with_retry(
+            invoke,
+            retries=self.config.max_retries,
+            delay=self.config.retry_delay_secs,
+        )
+
     def app_info(self) -> AppInfo:
         """
         Retrieve application build and version information (GetAppInfo).
@@ -69,7 +83,7 @@ class CronConfigurator:
         Returns:
             AppInfo: Application information object.
         """
-        return conversions.app_info_from_pb(self._stub.GetAppInfo(pb.Empty()))
+        return conversions.app_info_from_pb(self._call("GetAppInfo", pb.Empty()))
 
     def get_configuration(self, tenant_id: str, namespace: str, name: str) -> CronConfiguration:
         """
@@ -83,7 +97,7 @@ class CronConfigurator:
         Returns:
             CronConfiguration: The configuration entry object.
         """
-        response = self._stub.CronConfigurationGet(
+        response = self._call("CronConfigurationGet",
             pb.CronConfigurationGetRequest(
                 tenant_id=tenant_id, namespace=namespace, name=name
             )
@@ -109,7 +123,7 @@ class CronConfigurator:
         Returns:
             CronConfiguration: The updated configuration entry.
         """
-        response = self._stub.CronConfigurationSet(
+        response = self._call("CronConfigurationSet",
             pb.CronConfigurationSetRequest(
                 tenant_id=tenant_id,
                 namespace=namespace,
@@ -128,7 +142,7 @@ class CronConfigurator:
             namespace (str): The configuration namespace.
             name (str): The configuration name.
         """
-        self._stub.CronConfigurationUnset(
+        self._call("CronConfigurationUnset",
             pb.CronConfigurationUnsetRequest(
                 tenant_id=tenant_id, namespace=namespace, name=name
             )
@@ -146,7 +160,7 @@ class CronConfigurator:
         Returns:
             List[Job]: List of job objects.
         """
-        response = self._stub.CronJobsList(
+        response = self._call("CronJobsList",
             pb.CronJobsListRequest(tenant_id=tenant_id, namespace=namespace)
         )
         return [conversions.job_from_pb(job) for job in response.jobs]
@@ -165,7 +179,7 @@ class CronConfigurator:
         Returns:
             Job: The created job object.
         """
-        response = self._stub.CronJobCreate(
+        response = self._call("CronJobCreate",
             pb.CronJobCreateRequest(
                 tenant_id=tenant_id,
                 namespace=namespace,
@@ -189,7 +203,7 @@ class CronConfigurator:
         Returns:
             Job: The updated job object.
         """
-        response = self._stub.CronJobUpdate(
+        response = self._call("CronJobUpdate",
             pb.CronJobUpdateRequest(
                 tenant_id=tenant_id,
                 namespace=namespace,
@@ -208,7 +222,7 @@ class CronConfigurator:
             namespace (str): The namespace of the job.
             job_id (str): The job ID.
         """
-        self._stub.CronJobDelete(
+        self._call("CronJobDelete",
             pb.CronJobDeleteRequest(
                 tenant_id=tenant_id, namespace=namespace, job_id=job_id
             )
@@ -227,7 +241,7 @@ class CronConfigurator:
         Returns:
             Job: The job object.
         """
-        response = self._stub.CronJobGet(
+        response = self._call("CronJobGet",
             pb.CronJobGetRequest(
                 tenant_id=tenant_id, namespace=namespace, job_id=job_id
             )
@@ -248,7 +262,7 @@ class CronConfigurator:
         Returns:
             List[JobExecutionResult]: List of job execution result objects.
         """
-        response = self._stub.CronJobResults(
+        response = self._call("CronJobResults",
             pb.CronJobResultsRequest(
                 tenant_id=tenant_id, namespace=namespace, job_id=job_id
             )
@@ -267,7 +281,7 @@ class CronConfigurator:
         Returns:
             Ref: The reference object.
         """
-        response = self._stub.CronRefGet(
+        response = self._call("CronRefGet",
             pb.CronRefGetRequest(
                 tenant_id=tenant_id, namespace=namespace, key=key
             )
@@ -289,7 +303,7 @@ class CronConfigurator:
         Returns:
             Ref: The updated reference object.
         """
-        response = self._stub.CronRefSet(
+        response = self._call("CronRefSet",
             pb.CronRefSetRequest(
                 tenant_id=tenant_id,
                 namespace=namespace,
@@ -308,7 +322,7 @@ class CronConfigurator:
             namespace (str): The reference namespace.
             key (str): The reference key.
         """
-        self._stub.CronRefUnset(
+        self._call("CronRefUnset",
             pb.CronRefUnsetRequest(
                 tenant_id=tenant_id, namespace=namespace, key=key
             )

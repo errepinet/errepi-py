@@ -16,6 +16,7 @@ from typing import List, Optional
 from google.protobuf.empty_pb2 import Empty
 from google.protobuf.json_format import MessageToDict
 
+from errepi._retry import call_with_retry
 from errepi.gen import generic_regs_pb2 as pb
 from errepi.gen import generic_regs_pb2_grpc as pb_grpc
 
@@ -56,6 +57,19 @@ class GenericRegsClient:
         self._channel = grpc.insecure_channel(self.target)
         self._stub = pb_grpc.GenericRegsServiceStub(self._channel)
 
+    def _call(self, method: str, request) -> None:
+        """Invoke an RPC, retrying on transient gRPC failures."""
+        stub = self._stub
+
+        def invoke():
+            return getattr(stub, method)(request)
+
+        return call_with_retry(
+            invoke,
+            retries=self.config.max_retries,
+            delay=self.config.retry_delay_secs,
+        )
+
     def app_info(self) -> AppInfo:
         """
         Retrieve application build and version information (GetAppInfo).
@@ -63,7 +77,7 @@ class GenericRegsClient:
         Returns:
             AppInfo: Application information object.
         """
-        response = self._stub.GetAppInfo(Empty())
+        response = self._call("GetAppInfo", Empty())
         return _parse_message(AppInfo, response)
 
     def states_list(self, search: Optional[str] = None) -> List[State]:
@@ -76,7 +90,7 @@ class GenericRegsClient:
         Returns:
             List[State]: List of state objects.
         """
-        response = self._stub.StatesList(pb.StatesListRequest(search=search))
+        response = self._call("StatesList", pb.StatesListRequest(search=search))
         return [_parse_message(State, state) for state in response.states]
 
     def cities_list(self, search: Optional[str] = None) -> List[City]:
@@ -89,7 +103,7 @@ class GenericRegsClient:
         Returns:
             List[City]: List of city objects.
         """
-        response = self._stub.CitiesList(pb.CitiesListRequest(search=search))
+        response = self._call("CitiesList", pb.CitiesListRequest(search=search))
         return [_parse_message(City, city) for city in response.cities]
 
     def caps_list(self, search: Optional[str] = None) -> List[Cap]:
@@ -102,7 +116,7 @@ class GenericRegsClient:
         Returns:
             List[Cap]: List of cap objects.
         """
-        response = self._stub.CapsList(pb.CapsListRequest(search=search))
+        response = self._call("CapsList", pb.CapsListRequest(search=search))
         return [_parse_message(Cap, cap) for cap in response.caps]
 
     def provinces_list(self, search: Optional[str] = None) -> List[Province]:
@@ -115,7 +129,7 @@ class GenericRegsClient:
         Returns:
             List[Province]: List of province objects.
         """
-        response = self._stub.ProvincesList(pb.ProvincesListRequest(search=search))
+        response = self._call("ProvincesList", pb.ProvincesListRequest(search=search))
         return [_parse_message(Province, province) for province in response.provinces]
 
     def regions_list(self, search: Optional[str] = None) -> List[Region]:
@@ -128,5 +142,5 @@ class GenericRegsClient:
         Returns:
             List[Region]: List of region objects.
         """
-        response = self._stub.RegionsList(pb.RegionsListRequest(search=search))
+        response = self._call("RegionsList", pb.RegionsListRequest(search=search))
         return [_parse_message(Region, region) for region in response.regions]
