@@ -1,9 +1,10 @@
+from .confs import RegsClientConfiguration
+
 from .models import (
     AppInfo,
     Cap,
     City,
     Province,
-    RegsClientConfiguration,
     Region,
     State,
 )

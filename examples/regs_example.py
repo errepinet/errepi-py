@@ -7,7 +7,7 @@ prefix search filter.
 """
 
 from errepi.regs import GenericRegsClient
-from errepi.regs.models import RegsClientConfiguration
+from errepi.regs.confs import RegsClientConfiguration
 
 # Instantiate with a connection configuration (host and port) or use the default
 regs = GenericRegsClient(RegsClientConfiguration(host="localhost", port=50051))

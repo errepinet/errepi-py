@@ -8,4 +8,5 @@ cron
 .. toctree::
    :maxdepth: 1
 
+   cron_confs
    cron_models

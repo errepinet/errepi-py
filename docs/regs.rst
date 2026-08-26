@@ -8,4 +8,5 @@ regs
 .. toctree::
    :maxdepth: 1
 
+   regs_confs
    regs_models

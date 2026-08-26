@@ -18,19 +18,6 @@ from pydantic import BaseModel, conint, RootModel
 from errepi.models import AppInfo
 
 
-class CronClientConfiguration(BaseModel):
-    """
-    Connection configuration for the cron client.
-
-    Attributes:
-        host: Host of the cron microservice.
-        port: Port of the cron microservice.
-    """
-
-    host: str = "localhost"
-    port: int = 50051
-
-
 class CronConfiguration(BaseModel):
     """
     Job configuration, including max retries and retry delay.

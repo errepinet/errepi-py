@@ -8,6 +8,8 @@ from errepi.cron import (
     http_job_type,
 )
 
+from errepi.cron.confs import CronClientConfiguration
+
 from errepi.cron.models import (
     JobFrequencyMinute,
     JobHttpMethod,
@@ -15,7 +17,6 @@ from errepi.cron.models import (
     JobBodyType,
     JobCreateUpdate,
     CronConfiguration,
-    CronClientConfiguration,
     HTTPJob,
     RefCreateUpdate,
 )

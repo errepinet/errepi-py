@@ -18,19 +18,6 @@ from pydantic import BaseModel
 from errepi.models import AppInfo
 
 
-class RegsClientConfiguration(BaseModel):
-    """
-    Connection configuration for the generic registries client.
-
-    Attributes:
-        host: Host of the generic registries microservice.
-        port: Port of the generic registries microservice.
-    """
-
-    host: str = "localhost"
-    port: int = 50051
-
-
 class State(BaseModel):
     """
     State (country) record.

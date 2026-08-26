@@ -1,6 +1,7 @@
+from .confs import CronClientConfiguration
+
 from .models import (
     AppInfo,
-    CronClientConfiguration,
     CronConfiguration,
     HTTPJob,
     Job,
